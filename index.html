@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Glass Camera</title>
+    <meta name="theme-color" content="#e0e0e0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="settings-btn glass" id="settingsBtn" aria-label="Open settings" role="button">⚙️</div>
+    <div id="splash" class="splash">
+        <img id="splashLogo" class="splash-logo" src="icons/STYL Icon Glass.png" alt="STYL Logo">
+        <div class="splash-version" data-version></div>
+    </div>
+    <div class="camera-container">
+        <video id="video" autoplay playsinline></video>
+        <div id="ringLight" class="ring-light" aria-hidden="true"></div>
+        <div id="gridOverlay" class="grid-overlay" aria-hidden="true"></div>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <button id="flashBtn" class="flash-btn glass" type="button" aria-label="Toggle flash">⚡</button>
+        <button id="captureBtn" class="capture-btn glass" type="button" aria-label="Capture photo"></button>
+    </div>
+    <div class="gallery glass" id="gallery" aria-label="Open gallery" role="button"></div>
+    <div id="galleryOverlay" class="gallery-overlay" style="display:none;">
+        <div class="overlay-content glass">
+            <div class="overlay-gallery" id="overlayGallery"></div>
+            <button class="close-overlay glass" id="closeOverlay" type="button" aria-label="Close gallery overlay">Close</button>
+        </div>
+    </div>
+    <div id="toast" class="toast glass"></div>
+    <div id="settingsPage" class="settings-page" aria-hidden="true">
+        <header class="settings-header">
+            <button id="closeSettingsPage" class="ghost-btn" type="button" aria-label="Back to camera">← Back</button>
+            <div class="settings-title">Settings</div>
+            <div class="version-chip" data-version></div>
+        </header>
+        <div class="settings-sections">
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-general">General<span class="chevron">▾</span></button>
+                <div class="accordion-body" id="panel-general">
+                    <div class="row space-between">
+                        <div class="label-col">
+                            <div class="label">Glass effect</div>
+                            <div class="hint">Toggle glassmorphism UI</div>
+                        </div>
+                        <label class="toggle-row switch">
+                            <input type="checkbox" id="glassToggle" aria-label="Toggle glass effect" checked>
+                            <span class="slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-image">Image Settings<span class="chevron">▾</span></button>
+                <div class="accordion-body control-stack" id="panel-image">
+                    <label>Exposure <input type="range" min="-2" max="2" step="0.1" value="0" id="exposure" aria-label="Adjust exposure"></label>
+                    <label>Contrast <input type="range" min="0.5" max="2" step="0.1" value="1" id="contrast" aria-label="Adjust contrast"></label>
+                    <label>Saturation <input type="range" min="0" max="2" step="0.1" value="1" id="saturation" aria-label="Adjust saturation"></label>
+                    <label>Warmth <input type="range" min="-1" max="1" step="0.1" value="0" id="warmth" aria-label="Adjust color warmth"></label>
+                    <div class="row space-between">
+                        <div class="label-col">
+                            <div class="label">Ring light</div>
+                            <div class="hint">Adds a soft white halo</div>
+                        </div>
+                        <label class="toggle-row switch">
+                            <input type="checkbox" id="ringLightToggle" aria-label="Toggle ring light">
+                            <span class="slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-themes">Themes<span class="chevron">▾</span></button>
+                <div class="accordion-body" id="panel-themes">
+                    <div class="theme-row">
+                        <button class="theme-dot" data-theme="dark" aria-label="Dark theme">
+                            <span class="dot" style="background: linear-gradient(135deg, #0d0d10, #1a1a21);"></span>
+                            <span class="theme-label">Dark</span>
+                        </button>
+                        <button class="theme-dot" data-theme="light" aria-label="Light theme">
+                            <span class="dot" style="background: linear-gradient(135deg, #f5f7fb, #e0e6f0);"></span>
+                            <span class="theme-label">Light</span>
+                        </button>
+                        <button class="theme-dot" data-theme="benito" aria-label="Benito theme (forest green)">
+                            <span class="dot" style="background: linear-gradient(135deg, #0f1f18, #1d3a2c);"></span>
+                            <span class="theme-label">Benito</span>
+                        </button>
+                        <button class="theme-dot" data-theme="blue" aria-label="Blue theme">
+                            <span class="dot" style="background: linear-gradient(135deg, #0d1b2a, #1f4164);"></span>
+                            <span class="theme-label">Blue</span>
+                        </button>
+                        <button class="theme-dot" data-theme="red" aria-label="Red theme">
+                            <span class="dot" style="background: linear-gradient(135deg, #2b0f13, #4a1c22);"></span>
+                            <span class="theme-label">Red</span>
+                        </button>
+                        <button class="theme-dot" data-theme="creme" aria-label="Creme theme">
+                            <span class="dot" style="background: linear-gradient(135deg, #f6efe7, #e3d5c4);"></span>
+                            <span class="theme-label">Creme</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-overlays">Overlays<span class="chevron">▾</span></button>
+                <div class="accordion-body" id="panel-overlays">
+                    <div class="row space-between">
+                        <div class="label-col">
+                            <div class="label">Grid overlay</div>
+                            <div class="hint">Rule-of-thirds guide</div>
+                        </div>
+                        <label class="toggle-row switch">
+                            <input type="checkbox" id="gridToggle" aria-label="Toggle grid overlay">
+                            <span class="slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-experiments">Experiments<span class="chevron">▾</span></button>
+                <div class="accordion-body" id="panel-experiments">
+                    <button id="openMetaLink" class="ghost-btn" type="button">Open Metadata Lab</button>
+                    <div class="row space-between" style="margin-top:12px;">
+                        <div class="label-col">
+                            <div class="label">Fisheye (beta)</div>
+                            <div class="hint">CPU warp preview; may use more battery</div>
+                        </div>
+                        <label class="toggle-row switch">
+                            <input type="checkbox" id="fisheyeToggle" aria-label="Toggle fisheye effect">
+                            <span class="slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-release">Release Notes<span class="chevron">▾</span></button>
+                <div class="accordion-body" id="panel-release">
+                    <ul class="release-list">
+                        <li>v0.6.4 — New STYL Camera home-screen icon; STYL Glass logo in settings.</li>
+                        <li>v0.6.2 — Disabled fisheye preview for stability; warmth slider colorized.</li>
+                        <li>v0.6.0 — Added grid overlay, splash screen, and multi-theme.</li>
+                        <li>v0.5.0 — New Benito, Blue, Red, Creme themes.</li>
+                        <li>v0.4.0 — Theme selection and spacing improvements.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="accordion">
+                <button class="accordion-header" type="button" data-target="panel-about">About<span class="chevron">▾</span></button>
+                <div class="accordion-body about" id="panel-about">
+                    <div class="about-row">
+                        <span class="bullet">•</span>
+                        <span class="about-text">Created with ❤️ in Arizona</span>
+                        <span class="version-pill" data-version></span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="settings-footer">
+                <img src="icons/STYL Icon Glass.png" alt="STYL Glass Logo" class="footer-logo">
+            </div>
+        </div>
+    </div>
+
+    <div id="metaPage" class="meta-page" aria-hidden="true">
+        <header class="settings-header">
+            <button id="closeMetaPage" class="ghost-btn" type="button" aria-label="Back to camera">← Back</button>
+            <div class="settings-title">Metadata Lab</div>
+            <div class="version-chip" data-version></div>
+        </header>
+        <div class="meta-body">
+            <div class="drop-zone glass" id="dropZone">
+                <p>Drop an image or click to upload</p>
+                <input type="file" id="metaInput" accept="image/*">
+            </div>
+            <div class="meta-columns">
+                <div class="meta-panel glass">
+                    <h3>Metadata</h3>
+                    <div id="metaOutput" class="meta-output placeholder">No file loaded.</div>
+                </div>
+                <div class="meta-panel glass">
+                    <h3>Label</h3>
+                    <div class="label-grid">
+                        <label>Title <input id="labelTitle" placeholder="STYL Camera"></label>
+                        <label>F-Stop <input id="labelFstop" placeholder="f/1.8"></label>
+                        <label>Shutter <input id="labelShutter" placeholder="1/125"></label>
+                        <label>ISO <input id="labelIso" placeholder="100"></label>
+                        <label>Lens <input id="labelLens" placeholder="35mm"></label>
+                        <label>Camera <input id="labelCamera" placeholder="Camera Model"></label>
+                    </div>
+                    <label>Notes <textarea id="labelNotes" rows="3" placeholder="Add notes..."></textarea></label>
+                    <div class="label-preview glass" id="labelPreview">STYL Camera</div>
+                    <div class="row space-between">
+                        <button id="resetLabel" class="ghost-btn" type="button">Reset</button>
+                        <button id="exportLabel" class="ghost-btn" type="button">Export Label</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
