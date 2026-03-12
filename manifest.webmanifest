@@ -8,19 +8,19 @@
   "theme_color": "#e0e0e0",
   "icons": [
     {
-      "src": "icons/STYL Icon Glass.png",
+      "src": "STYL Icon Glass.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/STYL Icon Glass.png",
+      "src": "STYL Icon Glass.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon.svg",
+      "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
