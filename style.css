@@ -463,6 +463,7 @@ video {
     top: 0;
     left: 0;
     z-index: 1;
+    transform-origin: center center;
 }
 
 .ring-light {
@@ -480,6 +481,17 @@ video {
 }
 .ring-light.on {
     opacity: 1;
+}
+
+.demo-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 1;
+    display: none;
 }
 
 .grid-overlay {
@@ -547,10 +559,21 @@ video {
     box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
 
+.zoom-slider {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    accent-color: var(--accent);
+    z-index: 10;
+}
+
 .flash-btn {
     position: fixed;
     bottom: 54px;
-    left: calc(50% - 110px);
+    left: 32px;
+    transform: none;
     width: 52px;
     height: 52px;
     border-radius: 14px;
@@ -574,8 +597,9 @@ video {
 }
 .flip-btn {
     position: fixed;
-    bottom: 54px;
-    right: calc(50% - 110px);
+    top: 20px;
+    right: 20px;
+    transform: none;
     width: 52px;
     height: 52px;
     border-radius: 14px;
@@ -820,6 +844,11 @@ video {
 .toast.show {
     opacity: 1;
     pointer-events: auto;
+}
+.toast.success {
+    background: rgba(46, 204, 113, 0.18);
+    border: 1px solid rgba(46, 204, 113, 0.35);
+    color: #0f3f1f;
 }
 @media (max-width: 600px) {
     .gallery img {

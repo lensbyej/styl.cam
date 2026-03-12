@@ -1,4 +1,4 @@
-const APP_VERSION = '0.6.8';
+const APP_VERSION = '0.6.14';
 const MAX_PHOTOS = 20;
 
 const video = document.getElementById('video');
@@ -16,6 +16,10 @@ const gridToggle = document.getElementById('gridToggle');
 const gridOverlay = document.getElementById('gridOverlay');
 const flashBtn = document.getElementById('flashBtn');
 const flipBtn = document.getElementById('flipBtn');
+const demoToggle = document.getElementById('demoToggle');
+const demoImage = document.getElementById('demoImage');
+const zoomToggle = document.getElementById('zoomToggle');
+const zoomSlider = document.getElementById('zoomSlider');
 const settingsPage = document.getElementById('settingsPage');
 const closeSettingsPageBtn = document.getElementById('closeSettingsPage');
 const metaPage = document.getElementById('metaPage');
@@ -57,6 +61,8 @@ let fisheyeOn = false;
 let previewRAF;
 const offscreen = document.createElement('canvas');
 const offCtx = offscreen.getContext('2d');
+let currentZoom = 1;
+let zoomSupported = false;
 
 function buildFilter() {
     const warm = Math.max(0, Number(settings.temperature));
@@ -90,6 +96,20 @@ function setRingLight(on) {
 
 function setGrid(on) {
     gridOverlay?.classList.toggle('on', Boolean(on));
+}
+
+function setDemoMode(on) {
+    if (!demoImage) return;
+    if (on) {
+        stopCamera();
+        demoImage.style.display = 'block';
+        video.style.display = 'none';
+        canvas.style.display = 'none';
+    } else {
+        demoImage.style.display = 'none';
+        video.style.display = '';
+        startCamera();
+    }
 }
 
 function setGlassEnabled(on) {
@@ -161,12 +181,15 @@ function exportLabel() {
 }
 
 // Glassmorphism toast helper (kept global for reuse)
-function showToast(msg) {
+function showToast(msg, { success = false } = {}) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.textContent = msg;
+    toast.classList.toggle('success', success);
     toast.classList.add('show');
     setTimeout(() => {
         toast.classList.remove('show');
+        toast.classList.remove('success');
     }, 3000);
 }
 
@@ -176,12 +199,17 @@ async function startCamera() {
             stream.getTracks().forEach(t => t.stop());
         }
         stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: currentFacing } },
+            video: {
+                facingMode: { ideal: currentFacing },
+                zoom: currentZoom ? { ideal: currentZoom } : undefined
+            },
             audio: false
         });
         video.srcObject = stream;
         applyVideoFilter();
         markFlashSupport();
+        setupZoomBounds();
+        if (zoomToggle?.checked) applyZoom();
     } catch (e) {
         showToast('No Camera Found!');
     }
@@ -338,6 +366,7 @@ captureBtn.addEventListener('click', () => {
     }
     const dataUrl = canvas.toDataURL('image/png');
     savePhoto(dataUrl);
+    showToast('Saved to gallery', { success: true });
 });
 
 [exposureInput, contrastInput, saturationInput].forEach(input => {
@@ -381,7 +410,10 @@ themeButtons.forEach(btn => {
     el?.addEventListener('input', updateLabelPreview);
 });
 resetLabelBtn?.addEventListener('click', resetLabel);
-exportLabelBtn?.addEventListener('click', exportLabel);
+exportLabelBtn?.addEventListener('click', () => {
+    exportLabel();
+    showToast('Label exported', { success: true });
+});
 
 function toggleAccordion(btn) {
     const targetId = btn.dataset.target;
@@ -472,6 +504,46 @@ function markFlashSupport() {
     const caps = track?.getCapabilities?.();
     const supported = Boolean(caps && caps.torch);
     flashBtn.classList.toggle('disabled', !supported);
+}
+
+function applyZoom() {
+    const track = stream?.getVideoTracks?.()[0];
+    if (!track) return;
+    const caps = track.getCapabilities?.();
+    if (caps && caps.zoom) {
+        zoomSupported = true;
+        const min = caps.zoom.min ?? 1;
+        const max = caps.zoom.max ?? 3;
+        const clamped = Math.max(min, Math.min(max, currentZoom));
+        track.applyConstraints({ advanced: [{ zoom: clamped }] }).catch(() => {});
+        video.style.transform = 'none';
+    } else {
+        zoomSupported = false;
+        // fallback CSS scale
+        const scale = Math.max(1, currentZoom);
+        video.style.transform = `scale(${scale})`;
+    }
+}
+
+function setupZoomBounds() {
+    const track = stream?.getVideoTracks?.()[0];
+    const caps = track?.getCapabilities?.();
+    if (caps && caps.zoom && zoomSlider) {
+        const min = caps.zoom.min ?? 1;
+        const max = caps.zoom.max ?? 3;
+        const step = caps.zoom.step ?? 0.1;
+        zoomSlider.min = min;
+        zoomSlider.max = max;
+        zoomSlider.step = step;
+        currentZoom = Math.min(max, Math.max(min, Number(zoomSlider.value) || 1));
+        zoomSlider.value = currentZoom;
+        zoomSlider.disabled = false;
+    } else if (zoomSlider) {
+        zoomSlider.min = 1;
+        zoomSlider.max = 3;
+        zoomSlider.step = 0.1;
+        zoomSlider.disabled = false;
+    }
 }
 
 function drawFisheye(destCtx, w, h) {
@@ -588,6 +660,7 @@ async function handleMetaFile(file) {
     const data = await loadExif(file);
     renderMeta(data);
     metaOutput?.classList.remove('loading');
+    showToast('Metadata loaded', { success: true });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -595,6 +668,8 @@ window.addEventListener('DOMContentLoaded', () => {
     setRingLight(ringLightToggle?.checked);
     setGlassEnabled(glassToggle?.checked ?? true);
     setGrid(gridToggle?.checked ?? false);
+    setDemoMode(demoToggle?.checked ?? false);
+    zoomSlider.style.display = zoomToggle?.checked ? 'block' : 'none';
     fisheyeOn = Boolean(fisheyeToggle?.checked);
     initTheme();
     // ensure splash logo matches theme on initial load
@@ -642,10 +717,35 @@ if (fisheyeToggle) {
     });
 }
 
+if (demoToggle) {
+    demoToggle.addEventListener('change', (e) => {
+        setDemoMode(e.target.checked);
+        showToast(e.target.checked ? 'Demo image shown' : 'Camera resumed', { success: true });
+    });
+}
+
+if (zoomToggle && zoomSlider) {
+    zoomToggle.addEventListener('change', (e) => {
+        const on = e.target.checked;
+        zoomSlider.style.display = on ? 'block' : 'none';
+        if (!on) {
+            currentZoom = 1;
+            applyZoom();
+            showToast('Zoom disabled', { success: true });
+        }
+    });
+    zoomSlider.addEventListener('input', (e) => {
+        currentZoom = Number(e.target.value);
+        applyZoom();
+        showToast(`Zoom ${currentZoom.toFixed(1)}x`, { success: true });
+    });
+}
+
 if (flipBtn) {
     flipBtn.addEventListener('click', () => {
         currentFacing = currentFacing === 'user' ? 'environment' : 'user';
         startCamera();
+        showToast(`Camera: ${currentFacing === 'user' ? 'Front' : 'Rear'}`, { success: true });
     });
 }
 

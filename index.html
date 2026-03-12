@@ -18,10 +18,12 @@
         <video id="video" autoplay playsinline></video>
         <div id="ringLight" class="ring-light" aria-hidden="true"></div>
         <div id="gridOverlay" class="grid-overlay" aria-hidden="true"></div>
+        <img id="demoImage" class="demo-image" src="Demo Image.jpg" alt="Demo preview" aria-hidden="true" style="display:none;">
         <canvas id="canvas" style="display:none;"></canvas>
         <button id="flashBtn" class="flash-btn glass" type="button" aria-label="Toggle flash">⚡</button>
         <button id="flipBtn" class="flip-btn glass" type="button" aria-label="Flip camera">↺</button>
         <button id="captureBtn" class="capture-btn glass" type="button" aria-label="Capture photo"></button>
+        <input type="range" id="zoomSlider" class="zoom-slider" min="1" max="3" step="0.1" aria-label="Zoom" style="display:none;">
     </div>
     <div class="gallery glass" id="gallery" aria-label="Open gallery" role="button"></div>
     <div id="galleryOverlay" class="gallery-overlay" style="display:none;">
@@ -136,6 +138,26 @@
                             <span class="slider" aria-hidden="true"></span>
                         </label>
                     </div>
+                    <div class="row space-between" style="margin-top:12px;">
+                        <div class="label-col">
+                            <div class="label">Show demo image</div>
+                            <div class="hint">Replace live camera with demo image</div>
+                        </div>
+                        <label class="toggle-row switch">
+                            <input type="checkbox" id="demoToggle" aria-label="Toggle demo image">
+                            <span class="slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <div class="row space-between" style="margin-top:12px;">
+                        <div class="label-col">
+                            <div class="label">Enable zoom slider</div>
+                            <div class="hint">Show zoom control under shutter</div>
+                        </div>
+                        <label class="toggle-row switch">
+                            <input type="checkbox" id="zoomToggle" aria-label="Toggle zoom slider">
+                            <span class="slider" aria-hidden="true"></span>
+                        </label>
+                    </div>
                 </div>
             </section>
 
@@ -143,11 +165,10 @@
                 <button class="accordion-header" type="button" data-target="panel-release">Release Notes<span class="chevron">▾</span></button>
                 <div class="accordion-body" id="panel-release">
                     <ul class="release-list">
-                        <li>v0.6.4 — New STYL Camera home-screen icon; STYL Glass logo in settings.</li>
-                        <li>v0.6.2 — Disabled fisheye preview for stability; warmth slider colorized.</li>
-                        <li>v0.6.0 — Added grid overlay, splash screen, and multi-theme.</li>
-                        <li>v0.5.0 — New Benito, Blue, Red, Creme themes.</li>
-                        <li>v0.4.0 — Theme selection and spacing improvements.</li>
+                        <li>v0.6.13 — Zoom toggle/slider; controls repositioned; demo image fixes.</li>
+                        <li>v0.6.6 — Root icons + loading state for metadata.</li>
+                        <li>v0.6.2 — Disabled fisheye preview; warmth gradient.</li>
+                        <li>v0.6.0 — Grid overlay, splash, multi-theme.</li>
                     </ul>
                 </div>
             </section>
@@ -156,7 +177,6 @@
                 <button class="accordion-header" type="button" data-target="panel-about">About<span class="chevron">▾</span></button>
                 <div class="accordion-body about" id="panel-about">
                     <div class="about-row">
-                        <span class="bullet">•</span>
                         <span class="about-text">Created with ❤️ in Arizona</span>
                         <span class="version-pill" data-version></span>
                     </div>

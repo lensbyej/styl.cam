@@ -1,4 +1,4 @@
-const APP_VERSION = '0.6.8';
+const APP_VERSION = '0.6.14';
 const CACHE_NAME = `glasscam-cache-${APP_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 const ASSETS = [
@@ -11,7 +11,8 @@ const ASSETS = [
   '/icon.svg',
   '/STYL Icon Glass.png',
   '/STYL Camera Icon.png',
-  '/STYL Logo Glass Dark.png'
+  '/STYL Logo Glass Dark.png',
+  '/Demo Image.jpg'
 ];
 
 self.addEventListener('install', (event) => {
