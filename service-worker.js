@@ -1,4 +1,4 @@
-const APP_VERSION = '0.6.7';
+const APP_VERSION = '0.6.8';
 const CACHE_NAME = `glasscam-cache-${APP_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 const ASSETS = [

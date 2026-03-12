@@ -1,4 +1,4 @@
-const APP_VERSION = '0.6.7';
+const APP_VERSION = '0.6.8';
 const MAX_PHOTOS = 20;
 
 const video = document.getElementById('video');
@@ -15,6 +15,7 @@ const ringLight = document.getElementById('ringLight');
 const gridToggle = document.getElementById('gridToggle');
 const gridOverlay = document.getElementById('gridOverlay');
 const flashBtn = document.getElementById('flashBtn');
+const flipBtn = document.getElementById('flipBtn');
 const settingsPage = document.getElementById('settingsPage');
 const closeSettingsPageBtn = document.getElementById('closeSettingsPage');
 const metaPage = document.getElementById('metaPage');
@@ -44,6 +45,7 @@ const splashLogo = document.getElementById('splashLogo');
 let stream;
 let dropdownOutsideHandler;
 let flashOn = false;
+let currentFacing = 'environment';
 let settings = {
     exposure: 0,
     contrast: 1,
@@ -170,7 +172,13 @@ function showToast(msg) {
 
 async function startCamera() {
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+        }
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: currentFacing } },
+            audio: false
+        });
         video.srcObject = stream;
         applyVideoFilter();
         markFlashSupport();
@@ -631,6 +639,13 @@ if (fisheyeToggle) {
         video.style.display = '';
         canvas.style.display = 'none';
         showToast('Fisheye disabled for now.');
+    });
+}
+
+if (flipBtn) {
+    flipBtn.addEventListener('click', () => {
+        currentFacing = currentFacing === 'user' ? 'environment' : 'user';
+        startCamera();
     });
 }
 
