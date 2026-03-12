@@ -1,7 +1,7 @@
 {
   "name": "Minimal Glass Camera",
-  "short_name": "GlassCam",
-  "description": "Glassmorphism camera with gallery, offline splash, and ring-light option.",
+  "short_name": "STYL Cam",
+  "description": "The minimalist camera app for everyone.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#e0e0e0",
